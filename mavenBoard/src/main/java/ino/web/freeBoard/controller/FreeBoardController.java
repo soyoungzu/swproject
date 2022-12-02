@@ -24,17 +24,39 @@ public class FreeBoardController {
 	@Autowired
 	private FreeBoardService freeBoardService;
 
+
 	@RequestMapping("/main.ino") //화면진입용.
 	public ModelAndView main(HttpServletRequest request){
 		ModelAndView mav = new ModelAndView();
-		List<FreeBoardDto> list = freeBoardService.freeBoardList();
-
+		Map<String, Object> map = new HashMap<>();
+		List<FreeBoardDto> list = freeBoardService.freeBoardList(map);
+		mav.addObject("freeboardList", list);
 		mav.setViewName("boardMain");
-		mav.addObject("freeBoardList",list);
 		return mav;
 	}
+	
+	
 	//ajax검색용.
 	//List<FreeBoardDto> list = freeBoardService.freeBoardList(); main.ino와 같이 사용한다.
+	@ResponseBody
+	@RequestMapping(value="/searchMain.ino", method= RequestMethod.POST)
+	public ModelAndView searchMain(HttpServletRequest request, @RequestParam Map<String, Object> map) {
+		ModelAndView mav = new ModelAndView();
+		
+		System.out.println("searchMain map:" + map);
+		try {
+			List<FreeBoardDto> list = freeBoardService.freeBoardList(map);
+			System.out.println("searchMain list : " + list);
+			mav.addObject("freeboardList", list);
+			mav.setViewName("boardMain");
+			
+		} catch (Exception e) {
+			String msg = e.getCause().toString();
+			System.out.println("Exception의 값 : " + msg);
+		}
+		return mav;
+	}
+	
 	
 	
 	@RequestMapping("/freeBoardInsert.ino")

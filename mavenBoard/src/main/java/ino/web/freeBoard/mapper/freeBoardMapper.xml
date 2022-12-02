@@ -6,12 +6,36 @@
 <mapper namespace="ino.web.freeBoard.mapper.FreeBoardMapper">
 
 
-	<select id="freeBoardGetList" resultType="freeBoardDto" > <!-- resultType="ino.web.board.dto.BoardDto" -->
+	<select id="freeBoardGetList" resultType="freeBoardDto" parameterType="map" > <!-- resultType="ino.web.board.dto.BoardDto" -->
 		SELECT DECODE(CODE_TYPE, '01', '자유', '02', '익명', 'QnA' ) as codeType , NUM, NAME, TITLE, CONTENT, TO_CHAR(REGDATE , 'YYYY/MM/DD') AS REGDATE 
 		FROM FREEBOARD
-		ORDER BY NUM 
+		<include refid="choose"/>
+		order by NUM
 	</select>
-
+	
+	<sql id="choose">
+		<choose>
+			<when test="optType==1">
+				where CODE_TYPE = #{codeType}
+			</when>
+			<when test="optType==2">
+				 where NUM = #{num}
+			</when>
+			<when test="optType==3">
+				 where  CONTENT like '%' || #{content} || '%'
+			</when>
+			<when test="optType==4">
+				 where  TITLE like '%' || #{title} || '%'
+			</when>
+			<when test="optType==5">
+				 where  NAME like '%' || #{name} || '%'
+			</when>
+			<when test="codeType==6">
+				 where REGDATE BETWEEN TO_DATE('#{fromBox}','YYYYMMDD') and TO_DATE('#{toBox}','YYYYMMDD')
+			</when>
+		</choose>
+	</sql>
+	
 	<insert id="freeBoardInsertPro" parameterType="freeBoardDto">
 		INSERT INTO FREEBOARD(CODE_TYPE, NUM, TITLE, NAME, REGDATE, CONTENT)
 		VALUES( #{codeType}, NO_SEQ.NEXTVAL, #{title}, #{name}, SYSDATE, #{content})

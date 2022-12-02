@@ -9,6 +9,7 @@
 </head>
 <body>
 
+	<!-- 선택삭제 -->
 	<script type="text/javascript">
 		$(document).ready(function () {
 			$("#btnDeleteList").click(function() {
@@ -57,23 +58,133 @@
 			});
 		});
 	
+		
+		<!-- 검색-selectBox  -->
+		$(document).ready(function() {
+			$('.selectBox2_wrap').hide();
+			$('.textBox_wrap').hide();
+			$('.textBox2_wrap').hide();
+			
+			
+			$('#selectBox').change(function() {
+				var optType = $('#selectBox option:selected').val();
+				
+				switch(optType) {
+				case '1' : //타입
+					$('.selectBox2_wrap').show();
+					$('.textBox_wrap').hide();
+					$('.textBox2_wrap').hide();
+					alert('1번 지나감');
+					break;
+				case '2' : //번호
+					$('.selectBox2_wrap').hide();
+					$('.textBox_wrap').show();
+					$('.textBox2_wrap').hide();
+					
+					alert('2번 지나감');
+					break;
+				case '3' : //내용
+					$('.selectBox2_wrap').hide();
+					$('.textBox_wrap').show();
+					$('.textBox2_wrap').hide();
+					
+					alert('3번 지나감');
+					break;
+				case '4' : //제목
+					$('.selectBox2_wrap').hide();
+					$('.textBox_wrap').show();
+					$('.textBox2_wrap').hide();
+					
+					alert('4번 지나감');
+					break;
+				case '5' : //이름
+					$('.selectBox2_wrap').hide();
+					$('.textBox_wrap').show();
+					$('.textBox2_wrap').hide();
+					
+					alert('5번 지나감');
+					break;
+				case '6' : //기간
+					$('.selectBox2_wrap').hide();
+					$('.textBox_wrap').hide();
+					$('.textBox2_wrap').show();
+					
+					alert('6번 지나감');
+					break;
+				default :
+					
+					break;
+				}
+				
+				$('#btnSearch').click(function() {
+					var codeType = $('select[id=selectBox2] option:selected').val();
+					var num = $('#textBox').val();
+					var content = $('#textBox').val();
+					var title = $('#textBox').val();
+					var name = $('#textBox').val();
+					var fromBox = $('#fromBox').val();
+					var toBox = $('#toBox').val();
+					var param = {
+							"optType" : optType
+							, "codeType" : codeType
+							, "num" : num
+							, "content" : content
+							, "title" : title
+							, "name" : name
+							, "fromBox" : fromBox
+							, "toBox" : toBox
+					}
+					$.ajax({
+						type : "post",
+						url : "./searchMain.ino",
+						data : param,
+						success : function(resp){
+							alert("데이터 전송 성공!");
+							console.log("resp의 값 : " + resp);
+							console.log("=========================");
+							$("#tableBox").append(resp);
+						},
+						error : function(xhr, status, error) {
+							console.log(status, error);
+						}
+					}); //ajax
+				}); //#btnSearch click function
+			});
+		});
 	</script>
 	
 	<div>
 		<h1>자유게시판</h1>
 	</div>
 	
-	<div>
-		<select>
-			<option value="0">전체</option>
-			<option value="1">타입</option> <!-- selectbox -->
-			<option value="2">번호</option> <!-- input type text 검색버튼 클릭시 숫자인지 체크하세요.-->
-			<option value="3">내용</option> <!-- input type text -->
-			<option value="4">제목</option> <!-- input type text -->
-			<option value="5">이름</option> <!-- input type text -->
-			<option value="6">기간</option> <!-- input type text - input type text 검색버튼 클릭시 숫자인지 체크하세요. 8자리수체크 ex)20221125 20221127 -->
+	<div style="display: inline-block">
+		<select id="selectBox" name="selectBox" >
+			<option value="0" >전체</option>
+			<option value="1" id="optType">타입</option> <!-- selectbox -->
+			<option value="2" id="optNum">번호</option> <!-- input type text 검색버튼 클릭시 숫자인지 체크하세요.-->
+			<option value="3" id="optContent">내용</option> <!-- input type text -->
+			<option value="4" id="optTypeTitle">제목</option> <!-- input type text -->
+			<option value="5" id="optName">이름</option> <!-- input type text -->
+			<option value="6" id="optPeriod">기간</option> <!-- input type text - input type text 검색버튼 클릭시 숫자인지 체크하세요. 8자리수체크 ex)20221125 20221127 -->
 		</select>
-		<button>검색</button>
+		
+		<div class="selectBox2_wrap" style="display: inline-block">
+			<select id="selectBox2" name="selectBox2" >
+				<option value="01">자유</option>
+				<option value="02">익명</option>
+				<option value="03">QnA</option>
+			</select>
+		</div>
+		
+		<div class="textBox_wrap" style="display: inline-block">
+			<input type="text" id="textBox" name="textBox">
+		</div>
+		
+		<div class="textBox2_wrap" style="display: inline-block">
+			<input type="text" id="fromBox" name="fromBox" maxlength=8 size=10>-<input type="text" id="toBox" name="toBox" maxlength=8 size=10 >
+		</div>
+		
+		<button style="display: inline-block" id="btnSearch">검색</button>
 		<!-- ajax 만들것. -->
 	</div>
 	<div style="width:650px;" align="right">
@@ -97,14 +208,14 @@
 	<hr style="width: 600px;">
 
 	<div>
-		<table border="1">
+		<table border="1" id="tableBox">
 			<tbody id="tb" name="tb">
-					<c:forEach var="dto" items="${freeBoardList }">
+					<c:forEach var="dto" items="${freeboardList }">
 						<tr>
 							<td><input type="checkbox" value="${dto.num }" id="chkBox"></td>
 							<td style="width: 55px; padding-left: 30px;" align="center">${dto.codeType }</td>
 							<td style="width: 50px; padding-left: 10px;" align="center">${dto.num }</td>
-							<td style="width: 125px; "" align="center"><a href="./freeBoardDetail.ino?num=${dto.num }">${dto.title }</a></td>
+							<td style="width: 125px;" align="center"><a href="./freeBoardDetail.ino?num=${dto.num }">${dto.title }</a></td>
 							<td style="width: 48px; padding-left: 50px;" align="center">${dto.name }</td>
 							<td style="width: 100px; padding-left: 95px;" align="center">${dto.regdate }</td>
 						<tr>
